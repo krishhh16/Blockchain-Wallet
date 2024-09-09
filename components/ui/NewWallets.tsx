@@ -6,7 +6,7 @@ type Wallet = {
   privateKey: string;
 };
 
-const WalletSection = ({ wallets, setWallets }: { wallets: Wallet[], setWallets: any }) => {
+const WalletSection = ({ wallets, createAccount , setWallet, setMnemonics, setAccLen}: {setAccLen: React.Dispatch<React.SetStateAction<number>>, setMnemonics: React.Dispatch<React.SetStateAction<String[] | null>> , wallets: Wallet[], createAccount: () => void, setWallet: React.Dispatch<React.SetStateAction<Wallet[]>> }) => {
   const [showPrivateKeys, setShowPrivateKeys] = useState(
     Array(wallets.length).fill(false)
   );
@@ -27,23 +27,26 @@ const WalletSection = ({ wallets, setWallets }: { wallets: Wallet[], setWallets:
         <h1 className="text-2xl font-semibold">Solana Wallet</h1>
         <div className="flex gap-4">
           <Button onClick={() => {
-            setWallets();
+            createAccount();
           }} variant="secondary">Add Wallet</Button>
-          <Button variant="secondary">Clear Wallets</Button>
+          <Button onClick={() => {
+            setAccLen(0)
+            setWallet([])
+            setMnemonics(null)
+          }} variant="secondary">Clear Wallets</Button>
         </div>
       </div>
 
       {wallets.map((wallet, index) => (
         <div key={index} className="mb-4 p-4 bg-gray-900/75 rounded-lg shadow-md">
           <div className="flex justify-between items-center mb-2">
-            <h2 className="text-xl font-semibold">Wallet {index + 1}</h2>
+            <h2 className="text-xl font-semibold">Account {index + 1}</h2>
             <button
-              onClick={() => 
-                setWallets((prevVals: Wallet[]) => { 
-                   
+              onClick={() => {
+                setWallet(prevVals => {
+                    return [...prevVals.slice(0, index), ...prevVals.slice(index + 1)]
                 })
-
-              }
+              }}
               className="text-red-500"
               title="Delete Wallet"
             >
@@ -60,9 +63,11 @@ const WalletSection = ({ wallets, setWallets }: { wallets: Wallet[], setWallets:
             <div>
               <strong>Private Key: </strong>
               <span>
-                {showPrivateKeys[index]
-                  ? wallet.privateKey
-                  : '•'.repeat(40)}
+                {
+                showPrivateKeys[index] ?
+                wallet.privateKey.slice(0, 20) + "...." + wallet.privateKey.slice(69, -1)
+                : "*".repeat(40)
+                }
               </span>
             </div>
             <button

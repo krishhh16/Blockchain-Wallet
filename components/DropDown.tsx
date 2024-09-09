@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Button } from './ui/button';
+import { toast, Toaster } from "sonner"
 
 const SeedPhraseDisplay = ({ seedPhrase }: { seedPhrase: String[] }) => {
   const [isVisible, setIsVisible] = useState(false); // Default to hidden
@@ -7,6 +8,7 @@ const SeedPhraseDisplay = ({ seedPhrase }: { seedPhrase: String[] }) => {
   const handleCopy = () => {
     const seeds = seedPhrase.join(' ');
     navigator.clipboard.writeText(seeds);
+    toast("Copied to clipboard")
   };
 
   const toggleVisibility = () => {
@@ -32,9 +34,13 @@ const SeedPhraseDisplay = ({ seedPhrase }: { seedPhrase: String[] }) => {
       <p className="text-sm text-center mb-4">
         Please write down or securely save these words. This is the only way to recover your wallet.
       </p>
-
-      {isVisible && (
-        <div className="grid grid-cols-3 gap-2 mt-4">
+      
+      <div
+        className={`transition-all duration-300 ease-in-out overflow-hidden ${
+          isVisible ? 'max-h-96 opacity-100 mt-4' : 'max-h-0 opacity-0'
+        }`}
+      >
+        <div className="grid grid-cols-3 gap-2">
           {seedPhrase.map((word: String, index: number) => (
             <div
               key={index}
@@ -44,7 +50,9 @@ const SeedPhraseDisplay = ({ seedPhrase }: { seedPhrase: String[] }) => {
             </div>
           ))}
         </div>
-      )}
+      </div>
+
+      <Toaster/>
     </div>
   );
 };

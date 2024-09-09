@@ -8,6 +8,7 @@ import { derivePath } from "ed25519-hd-key";
 import nacl from "tweetnacl";
 import { Keypair } from '@solana/web3.js'
 import WalletSection from './ui/NewWallets'
+import bs58 from "bs58"
 
 type Wallet = {
     publicKey: string;
@@ -28,9 +29,8 @@ function CreateWallet() {
         const path = `m/44'/501'/${accountCount}'/0'`
         const derivedSeed = derivePath(path, seedPhrase.toString("hex")).key;
         const secret = nacl.sign.keyPair.fromSeed(derivedSeed).secretKey;
-        console.log(Keypair.fromSecretKey(secret).publicKey.toBase58())
         setAccLen(accountCount + 1)
-        setWallets(prevVals => [...prevVals, {publicKey: Keypair.fromSecretKey(secret).publicKey.toString(), privateKey: Keypair.fromSecretKey(secret).secretKey.toString()}] )
+        setWallets([{publicKey: Keypair.fromSecretKey(secret).publicKey.toString(), privateKey: bs58.encode(Keypair.fromSecretKey(secret).secretKey) }] )
         setMnemonics(newMnemonics.split(" "))
         toast("Wallet Has been created")
     }
@@ -41,9 +41,8 @@ function CreateWallet() {
             console.log(accountCount)
             const derivedSeed = derivePath(path, seed.toString("hex")).key;
             const secret = nacl.sign.keyPair.fromSeed(derivedSeed).secretKey;
-            console.log(Keypair.fromSecretKey(secret).publicKey.toString())
             setAccLen(accountCount + 1)
-            setWallets(prevVals => [...prevVals, {publicKey: Keypair.fromSecretKey(secret).publicKey.toString(), privateKey: Keypair.fromSecretKey(secret).secretKey.toString()}] )
+            setWallets(prevVals => [...prevVals, {publicKey: Keypair.fromSecretKey(secret).publicKey.toString(), privateKey: bs58.encode(Keypair.fromSecretKey(secret).secretKey)}])
         }
     }
     return (
@@ -52,7 +51,7 @@ function CreateWallet() {
                 mnemonics ?
                     <div  >
                         <SeedPhraseDropdown seedPhrase={mnemonics}/>
-                        <WalletSection setWallets={createAccount} wallets={wallets}/>
+                        <WalletSection setAccLen={setAccLen} setMnemonics={setMnemonics} setWallet={setWallets} createAccount={createAccount}  wallets={wallets}/>
                     </div>
                     :
                     <div className="border-b flex justify-between" >
